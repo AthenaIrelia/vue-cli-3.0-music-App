@@ -24,6 +24,10 @@ export default {
     data: {
       type: Array,
       default: null
+    },
+    listenScroll:{
+      type:Boolean,
+      default:null
     }
   },
   // components: {},
@@ -45,6 +49,12 @@ export default {
         probeType: this.probeType,
         click: this.click
       });
+      if(this.listenScroll){
+        let me =this
+        this.scroll.on('scroll',(pos)=>{
+          em.$emit('scroll',pos)
+        })
+      }
     },
     enable() {
       this.scroll && this.scroll.enable();
@@ -54,6 +64,12 @@ export default {
     },
     refresh() {
       this.scroll && this.scroll.refresh();
+    },
+    scrollTo() {
+      this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
+    },
+    scrollToElement() {
+      this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
     }
   },
   watch: {

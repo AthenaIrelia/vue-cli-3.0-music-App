@@ -1,7 +1,7 @@
-import jsonp from 'common/js/jsonp.js'
+// import jsonp from 'common/js/jsonp.js'
 import {
     commonParams,
-    option
+    // option
 } from './config.js'
 import axios from 'axios'
 
@@ -12,7 +12,6 @@ export function getSingerList() {
     const data = Object.assign({}, commonParams, {
         loginUin: 0,
         hostUin: 0,
-        // notice: 0,
         platform: 'yqq',
         needNewCode: 0,
         data: JSON.stringify({
@@ -33,7 +32,11 @@ export function getSingerList() {
                 }
             }
         }),
-        // data1: {
+        // loginUin: 0,
+        // hostUin: 0,
+        // platform: 'yqq',
+        // needNewCode: 0,
+        // data: {
         //     "comm": {
         //         "ct": 24,
         //         "cv": 10000

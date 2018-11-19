@@ -10,3 +10,12 @@ export function hasClass(el, className) {
     let reg = new RegExp('(^|\\s)' + className + '(\\s|$)')
     return reg.test(el.className)
 }
+export function getDate(el,name,val){
+     const prefix = 'data-'
+     let sum=prefix+name
+     if(val){
+        return el.setAttribute(sum,val)
+     }else{
+       return el.getAttribute(sum)
+     }
+}
