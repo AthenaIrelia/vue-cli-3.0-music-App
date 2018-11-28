@@ -13,6 +13,7 @@ Vue.use(VueLazyload, {
 
 import 'common/stylus/index.styl'
 
+
 new Vue({
   render: h => h(App),
   router,

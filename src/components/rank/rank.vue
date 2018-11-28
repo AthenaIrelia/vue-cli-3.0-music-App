@@ -1,6 +1,6 @@
 <!--  -->
 <template>
-  <div>1</div>
+  <div></div>
 </template>
 
 <script>
@@ -21,4 +21,10 @@ export default {
 
 </script>
 <style lang='stylus' scoped>
+div{
+  width: 330px
+  height :330px;
+  border-radius:50%;
+  border:5px solid #00F;
+}
 </style>

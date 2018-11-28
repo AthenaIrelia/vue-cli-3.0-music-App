@@ -2,7 +2,12 @@
 <template>
   <div class="song-list">
     <ul>
-      <li v-for="song in songs" :key="song.vaule" class="item">
+      <li
+        @click="selectItem(song,index)"
+        v-for="(song,index) in songs"
+        :key="index.vaule"
+        class="item"
+      >
         <div class="content">
           <h2 class="name">{{song.name}}</h2>
           <p class="desc">{{getDesc(song)}}</p>
@@ -14,31 +19,32 @@
 
 <script>
 export default {
-    props:{
-       songs: {
-        type: Array,
-        default: []
-      },
-    },
-    
+  props: {
+    songs: {
+      type: Array,
+      default: () => []
+    }
+  },
+
   methods: {
-       getDesc(song) {
-        return `${song.singer}·${song.album}`
-      },
+    getDesc(song) {
+      return `${song.singer}·${song.album}`;
+    },
+    selectItem(item, index) {
+      this.$emit("select", item, index);
+    }
   }
-//   data () {
-//     return {
-//     };
-//   },
+  //   data () {
+  //     return {
+  //     };
+  //   },
 
-//   components: {},
+  //   components: {},
 
-//   computed: {},
+  //   computed: {},
 
-//   mounted() {},
-
-}
-
+  //   mounted() {},
+};
 </script>
 <style lang='stylus' scoped>
 @import '~common/stylus/variable';

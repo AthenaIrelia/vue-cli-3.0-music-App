@@ -1,11 +1,17 @@
 <!--  -->
 <template>
   <div class="music-list">
-    <div class="back">
+    <div class="back" @click="back">
       <i class="icon-back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
     <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-wrapper">
+        <div ref="playBtn" v-show="songs.length>0" class="play">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
       <div class="filter" ref="filter"></div>
     </div>
     <div class="bg-layer" ref="layer"></div>
@@ -18,7 +24,10 @@
       @scroll="scroll"
     >
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list @select="selectItem" :songs="songs"></song-list>
+      </div>
+      <div class="loading-container" v-show="!songs.length">
+      <loading></loading>
       </div>
     </scroll>
   </div>
@@ -26,7 +35,13 @@
 <script>
 import Scroll from "base/scroll/scroll.vue";
 import SongList from "base/song-list/song-list.vue";
+import { prefixStyle } from "common/js/dom";
+import Loading from "base/loading/loading.vue";
+import {mapActions} from "vuex"
+// import {playlistMixin} from 'common/js/mixin'
 const RESERVED_HEIGHT = 40;
+const transform = prefixStyle("transform");
+const backdrop = prefixStyle("backdrop-filter");
 export default {
   props: {
     bgImage: {
@@ -54,7 +69,20 @@ export default {
   methods: {
     scroll(pos) {
       this.scrollY = pos.y;
-    }
+    },
+    back() {
+      this.$router.back();
+    },
+    selectItem(item,index){
+      this.selectPlay({
+        list:this.songs,
+        index
+      })
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
+
   },
   data() {
     return {
@@ -67,7 +95,7 @@ export default {
       let zIndex = 0;
       let scale = 1;
       let blur = 0;
-      this.$refs.layer.style["transform"] = `translate3d(0,${translateY}px,0)`;
+      this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`;
       const percent = Math.abs(newY / this.imageHeight);
       if (newY > 0) {
         scale = 1 + percent;
@@ -75,21 +103,20 @@ export default {
       } else {
         blur = Math.min(20, percent * 20);
       }
-      this.$refs.layer.style['transform'] = `translate3d(0,${translateY}px,0)`;
-      this.$refs.filter.style['backdrop-filter'] = `blur(${blur}px)`;
+      this.$refs.layer.style[transform] = `translate3d(0,${translateY}px,0)`;
+      this.$refs.filter.style[backdrop] = `blur(${blur}px)`;
       if (newY < this.minTransalteY) {
         zIndex = 10;
         this.$refs.bgImage.style.paddingTop = 0;
         this.$refs.bgImage.style.height = `${RESERVED_HEIGHT}px`;
-        // this.$refs.playBtn.style.display = "none";
+        this.$refs.playBtn.style.display = "none";
       } else {
         this.$refs.bgImage.style.paddingTop = "70%";
         this.$refs.bgImage.style.height = 0;
-        //   this.$refs.playBtn.style.display = "";
+        this.$refs.playBtn.style.display = "";
       }
-      // this.$refs.bgImage.style[transform] = `scale(${scale})`;
+      this.$refs.bgImage.style[transform] = `scale(${scale})`;
       this.$refs.bgImage.style.zIndex = zIndex;
-      this.$refs.bgImage.style["transform"] = `scale(${scale})`;
     }
   },
   mounted() {
@@ -99,7 +126,8 @@ export default {
   },
   components: {
     Scroll,
-    SongList
+    SongList,
+    Loading
   }
 };
 </script>
@@ -127,6 +155,10 @@ export default {
       padding: 10px;
       font-size: $font-size-large-x;
       color: $color-theme;
+    }
+
+    .icon-back:before {
+      content: '\e911';
     }
   }
 
