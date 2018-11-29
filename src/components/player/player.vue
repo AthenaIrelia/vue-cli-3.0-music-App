@@ -29,17 +29,24 @@
           </div>
         </div>
         <div class="bottom">
+          <div class="progress-wrapper">
+            <span class="time time-l">{{format(currentTime)}}</span>
+            <div class="progress-bar-wrapper">
+              <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
+            </div>
+            <span class="time time-r">{{format(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
+            <div class="icon i-left" :class="disableCls">
               <i @click="prev" class="icon-prev"></i>
             </div>
-            <div class="icon i-center">
+            <div class="icon i-center" :class="disableCls">
               <i @click="togglePlaying" :class="playIcon"></i>
             </div>
-            <div class="icon i-right">
+            <div class="icon i-right" :class="disableCls">
               <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
@@ -59,31 +66,44 @@
           <p class="desc" v-html="currentSong.singer"></p>
         </div>
         <div class="control">
-          <i @click.stop="togglePlaying" :class="miniIcon"></i>
+          <progress-circle :radius="radius" :percent="percent">
+            <i @click.stop="togglePlaying" class="icon-mini" :class="miniIcon"></i>
+          </progress-circle>
         </div>
         <div class="control">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
-    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error"></audio>
+    <audio
+      @timeupdate="updateTime"
+      ref="audio"
+      :src="currentSong.url"
+      @canplay="ready"
+      @error="error"
+    ></audio>
   </div>
 </template>
 
 <script>
-// mui('body').on('tap','a',function(){document.location.href=this.href;});
-// mui('body').on('click','a',function(){document.location.href=this.href;});
 import { mapGetters, mapMutations } from "vuex";
 import animations from "create-keyframe-animation";
 import { prefixStyle } from "common/js/dom.js";
+import progressBar from "base/progress-bar/progress-bar.vue";
+import progressCircle from "base/progress-circle/progress-circle.vue";
 const transform = prefixStyle("transform");
 export default {
   data() {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: 0,
+      radius:32
     };
   },
-  //   components: {},
+  components: {
+    progressBar,
+    progressCircle
+  },
   watch: {
     currentSong() {
       this.$nextTick(() => {
@@ -98,6 +118,12 @@ export default {
     }
   },
   computed: {
+    percent() {
+      return this.currentTime / this.currentSong.duration;
+    },
+    disableCls() {
+      return this.songReady ? "" : "disable";
+    },
     cdCls() {
       return this.playing ? "play" : "play pause";
     },
@@ -117,6 +143,33 @@ export default {
   },
   //   mounted() {},
   methods: {
+    onProgressBarChange(percent) {
+      const currentTime = this.currentSong.duration * percent;
+      this.$refs.audio.currentTime = currentTime;
+      if (!this.playing) {
+        this.togglePlaying();
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000);
+      }
+    },
+    _pad(num, n = 2) {
+      let len = num.toString().length;
+      while (len < n) {
+        num = "0" + num;
+        len++;
+      }
+      return num;
+    },
+    updateTime(e) {
+      this.currentTime = e.target.currentTime;
+    },
+    format(interval) {
+      interval = interval | 0;
+      const minute = (interval / 60) | 0;
+      const second = this._pad(interval % 60);
+      return `${minute}:${second}`;
+    },
     error() {
       this.songReady = true;
     },
